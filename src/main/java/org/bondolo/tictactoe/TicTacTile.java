@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Mike Duigou
+ * Copyright © 2011, 2020 Mike Duigou
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,15 +25,17 @@ import org.bondolo.tiles.rect.RectTile;
 import org.bondolo.tiles.rect.RectTileCoord;
 import org.bondolo.tiles.rect.RectTileDimension;
 import java.awt.BasicStroke;
-import java.awt.Color;
+import static java.awt.BasicStroke.CAP_ROUND;
+import static java.awt.BasicStroke.JOIN_ROUND;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import static java.awt.geom.Path2D.WIND_NON_ZERO;
 import java.awt.geom.Point2D;
 import javax.swing.UIManager;
+import static org.bondolo.tictactoe.TicTacTile.TileState.BLANK;
 
 /**
  *  Handles state and drawing for a single tile in a tic tac toe game.
@@ -52,7 +54,7 @@ public class TicTacTile extends RectTile {
     /**
      * The current state of this tile.
      */
-    private TileState state = TileState.BLANK;
+    private TileState state = BLANK;
     /**
      * Our drawing mark for an "O"
      */
@@ -63,7 +65,7 @@ public class TicTacTile extends RectTile {
     private final static Shape X;
 
     static {
-        GeneralPath p = new GeneralPath(GeneralPath.WIND_NON_ZERO, 6);
+        var p = new GeneralPath(WIND_NON_ZERO, 6);
         p.moveTo(0, 0);
         p.lineTo(1, 1);
         p.moveTo(1, 0);
@@ -74,7 +76,7 @@ public class TicTacTile extends RectTile {
     /**
      * The drawing stroke we use for drawing the mark on a tile.
      */
-    private final Stroke MARK_STROKE = new BasicStroke((float) 0.15, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    private final static Stroke MARK_STROKE = new BasicStroke((float) 0.15, CAP_ROUND, JOIN_ROUND);
 
     public TicTacTile(RectTileCoord coord) {
         super(coord);
@@ -82,32 +84,23 @@ public class TicTacTile extends RectTile {
 
     @Override
     public void draw(final Graphics2D g, final Point2D origin, final RectTileDimension dim, final boolean highlight) {
-        final Shape mark;
-
-        switch (getState()) {
-            case X:
-                mark = X;
-                break;
-            case O:
-                mark = O;
-                break;
-            default:
-                mark = null;
-        }
+        final var mark = switch (getState()) {
+            case X -> X;
+            case O -> O;
+            default -> null;
+        };
 
         if (null != mark) {
             // draw the mark
-            final double insetx = dim.getWidth() / 6;
-            final double insety = dim.getHeight() / 6;
-
-            final double x = origin.getX() + insetx;
-            final double y = origin.getY() + insety;
-            final double w = dim.getWidth() - 2 * insetx;
-            final double h = dim.getHeight() - 2 * insety;
-
-            final AffineTransform currentTransform = g.getTransform();
-            final Stroke currentStroke = g.getStroke();
-            final Color currentColor = g.getColor();
+            final var insetx = dim.getWidth() / 6;
+            final var insety = dim.getHeight() / 6;
+            final var x = origin.getX() + insetx;
+            final var y = origin.getY() + insety;
+            final var w = dim.getWidth() - 2 * insetx;
+            final var h = dim.getHeight() - 2 * insety;
+            final var currentTransform = g.getTransform();
+            final var currentStroke = g.getStroke();
+            final var currentColor = g.getColor();
 
             g.translate(x, y);
             g.scale(w, h);

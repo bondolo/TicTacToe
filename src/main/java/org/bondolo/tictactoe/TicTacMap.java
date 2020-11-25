@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Mike Duigou
+ * Copyright © 2011, 2020 Mike Duigou
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,13 @@
  */
 package org.bondolo.tictactoe;
 
+import java.util.Optional;
 import org.bondolo.tiles.rect.RectTileCoord;
 import org.bondolo.tiles.rect.RectTileMap;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import static org.bondolo.tictactoe.TicTacTile.TileState.BLANK;
+import static org.bondolo.tictactoe.TicTacTile.TileState.O;
+import static org.bondolo.tictactoe.TicTacTile.TileState.X;
 
 /**
  * Implements the game logic for Tic Tac Toe game.
@@ -35,19 +37,19 @@ public class TicTacMap extends RectTileMap {
     private static final int BOARD_SIZE = 3;
 
     /**
-     * Who's turn is it currently?
+     * Who's turn is it currently? X plays first.
      */
-    private TicTacTile.TileState turn = TicTacTile.TileState.X;
+    private TicTacTile.TileState turn = X;
 
     public TicTacMap() {
         super(createBoard());
     }
 
     private static TicTacTile[][] createBoard() {
-        TicTacTile[][] board = new TicTacTile[BOARD_SIZE][BOARD_SIZE];
+        var board = new TicTacTile[BOARD_SIZE][BOARD_SIZE];
 
-        for (int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[x].length; y++) {
+        for (var x = 0; x < board.length; x++) {
+            for (var y = 0; y < board[x].length; y++) {
                 board[x][y] = new TicTacTile(new RectTileCoord(x, y));
             }
         }
@@ -65,35 +67,42 @@ public class TicTacMap extends RectTileMap {
         return (TicTacTile) super.getTile(forLoc);
     }
 
+    /**
+     * Play the specified tile.
+     *
+     * @param tile the tile to be played
+     * @return true if the play was successful or false if the tile has already been played.
+     */
     public boolean play(TicTacTile tile) {
-        if (TicTacTile.TileState.BLANK != tile.getState()) {
+        if (BLANK != tile.getState()) {
             return false;
         }
 
         tile.setState(turn);
 
         // it is now the other player's turn.
-        turn = (TicTacTile.TileState.X == turn) ? TicTacTile.TileState.O : TicTacTile.TileState.X;
+        turn = (X == turn) ? O : X;
 
         return true;
     }
 
     /**
+     * Determine if the state of play is a win, stalemate or undecided.
      *
-     * @return a set containing the tiles of the winning combination, an empty
-     * set if the game is a stalemate or {@code null} if valid play remains.
+     * @return Optionally return a set containing the tiles of the winning combination, an
+     * empty set if the game is a stalemate or no result if valid play remains.
      */
-    public Set<TicTacTile> checkForWin() {
+    public Optional<Set<TicTacTile>> checkForWin() {
         TicTacTile first = null;
         TicTacTile second = null;
         TicTacTile third = null;
-        boolean win = false;
-        boolean playable = false;
+        var win = false;
+        var playable = false;
 
         // columns
-        for (int x = 0; !win && x < getXSize(); x++) {
+        for (var x = 0; !win && x < getXSize(); x++) {
             first = getTile(x, 0);
-            if (TicTacTile.TileState.BLANK == first.getState()) {
+            if (BLANK == first.getState()) {
                 playable = true;
                 continue;
             }
@@ -105,15 +114,15 @@ public class TicTacMap extends RectTileMap {
                     (first.getState() == third.getState())) {
                 win = true;
             } else {
-                playable |= (TicTacTile.TileState.BLANK == second.getState());
-                playable |= (TicTacTile.TileState.BLANK == third.getState());
+                playable |= (BLANK == second.getState());
+                playable |= (BLANK == third.getState());
             }
         }
 
         // rows
-        for (int y = 0; !win && y < getYSize(); y++) {
+        for (var y = 0; !win && y < getYSize(); y++) {
             first = (getTile(0, y));
-            if (TicTacTile.TileState.BLANK == first.getState()) {
+            if (BLANK == first.getState()) {
                 playable = true;
                 continue;
             }
@@ -125,15 +134,15 @@ public class TicTacMap extends RectTileMap {
                     (first.getState() == third.getState())) {
                 win = true;
             } else {
-                playable |= (TicTacTile.TileState.BLANK == second.getState());
-                playable |= (TicTacTile.TileState.BLANK == third.getState());
+                playable |= (BLANK == second.getState());
+                playable |= (BLANK == third.getState());
             }
         }
 
         // diagonals
         if (!win) {
             first = getTile(1, 1);
-            if (TicTacTile.TileState.BLANK != first.getState()) {
+            if (BLANK != first.getState()) {
                 second = getTile(2, 0);
                 third = getTile(0, 2);
 
@@ -141,8 +150,8 @@ public class TicTacMap extends RectTileMap {
                         (first.getState() == third.getState())) {
                     win = true;
                 } else {
-                    playable |= (TicTacTile.TileState.BLANK == second.getState());
-                    playable |= (TicTacTile.TileState.BLANK == third.getState());
+                    playable |= (BLANK == second.getState());
+                    playable |= (BLANK == third.getState());
                     second = getTile(0, 0);
                     third = getTile(2, 2);
 
@@ -150,8 +159,8 @@ public class TicTacMap extends RectTileMap {
                             (first.getState() == third.getState())) {
                         win = true;
                     } else {
-                        playable |= (TicTacTile.TileState.BLANK == second.getState());
-                        playable |= (TicTacTile.TileState.BLANK == third.getState());
+                        playable |= (BLANK == second.getState());
+                        playable |= (BLANK == third.getState());
                     }
                 }
             } else {
@@ -160,20 +169,11 @@ public class TicTacMap extends RectTileMap {
         }
 
         // Return the winning configuration
-        final Set<TicTacTile> theWin;
-        if (win) {
-            // We have a winner
-            theWin = new HashSet<TicTacTile>();
-            theWin.add(first);
-            theWin.add(second);
-            theWin.add(third);
-        } else if (!playable) {
-            // stalemate
-            theWin = Collections.emptySet();
-        } else {
-            // no win.
-            theWin = null;
-        }
+        Optional<Set<TicTacTile>> theWin = win
+                ? Optional.of(Set.of(first,second,third)) // We have a winner
+                : playable
+                        ? Optional.empty() // no win.
+                        : Optional.of(Set.of()); // stalemate
 
         return theWin;
     }
@@ -182,12 +182,12 @@ public class TicTacMap extends RectTileMap {
      * reset the board to begin a new game.
      */
     public void reset() {
-        for (int x = 0; x < getXSize(); x++) {
-            for (int y = 0; y < getYSize(); y++) {
-                getTile(x, y).setState(TicTacTile.TileState.BLANK);
+        for (var x = 0; x < getXSize(); x++) {
+            for (var y = 0; y < getYSize(); y++) {
+                getTile(x, y).setState(BLANK);
             }
         }
 
-        turn = TicTacTile.TileState.X;
+        turn = X;
     }
 }
