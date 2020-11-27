@@ -42,7 +42,7 @@ public final class Main {
      * Initial tile scale used
      */
     private static final int INITIAL_SCALE = 1;
-     /**
+    /**
      * base scaling factor for tile size
      */
     private static final int BASE_SCALE_FACTOR = 6;
@@ -50,11 +50,12 @@ public final class Main {
     /**
      * Tile scales, powers of 2 starting at {@link #BASE_SCALE_FACTOR}
      */
-    private final static RectTileDimension[] TILE_SCALE_DIMENSIONS = IntStream.range(0, TILE_SCALES)
-            .map(scale -> 1 << (scale + BASE_SCALE_FACTOR))
-            .mapToObj(RectTileDimension::new)
-            .peek(dim -> System.out.println(dim))
-            .toArray(RectTileDimension[]::new);
+    private final static RectTileDimension[] TILE_SCALE_DIMENSIONS
+            = IntStream.range(0, TILE_SCALES)
+                    .map(scale -> 1 << (scale + BASE_SCALE_FACTOR))
+                    .mapToObj(RectTileDimension::new)
+                    .peek(dim -> System.out.println(dim))
+                    .toArray(RectTileDimension[]::new);
 
     /**
      * No instances
